@@ -72,21 +72,25 @@ def predict_fn(input_data, model):
 
     data_X = None
     data_len = None
-
+    data_in_words = review_to_words(input_data)
+    #print(data_in_words)
+    data_X, data_len = convert_and_pad(model.word_dict, data_in_words)
     # Using data_X and data_len we construct an appropriate input tensor. Remember
     # that our model expects input data of the form 'len, review[500]'.
     data_pack = np.hstack((data_len, data_X))
     data_pack = data_pack.reshape(1, -1)
-    
     data = torch.from_numpy(data_pack)
     data = data.to(device)
-
     # Make sure to put the model into evaluation mode
     model.eval()
-
     # TODO: Compute the result of applying the model to the input data. The variable `result` should
     #       be a numpy array which contains a single integer which is either 1 or 0
-
-    result = None
+    # result = None
+    # prediction = model(data)
+    # prediction_numpy = prediction.detach().numpy()
+    # result = np.round(prediction_numpy, 0)
+    with torch.no_grad():
+        output = model.forward(data)
+    result = int(np.round(output.to('cpu').numpy()))
 
     return result
